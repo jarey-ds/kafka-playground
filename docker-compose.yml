@@ -1,0 +1,317 @@
+---
+version: '3.9'
+services:
+  zookeeper1:
+    image: confluentinc/cp-zookeeper:7.4.0
+    hostname: zookeeper1
+    container_name: zookeeper1
+    #mem_limit: 500mb
+    #ports:
+    #  - '22181:22181'
+    environment:
+      ZOOKEEPER_SERVER_ID: 1
+      ZOOKEEPER_CLIENT_PORT: 22181
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_INIT_LIMIT: 5
+      ZOOKEEPER_SYNC_LIMIT: 2
+      ZOOKEEPER_SERVERS: zookeeper1:22888:23888;zookeeper2:32888:33888;zookeeper3:42888:43888
+    volumes:
+      - ./dockerdata/1.0/zookeeper_1/zk-data:/var/lib/zookeeper/data
+      - ./dockerdata/1.0/zookeeper_1/zk-txn-logs:/var/lib/zookeeper/log
+    user: root
+    
+  zookeeper2:
+    image: confluentinc/cp-zookeeper:7.4.0
+    hostname: zookeeper2
+    container_name: zookeeper2
+    #mem_limit: 500mb
+    #ports:
+    #  - '32181:32181'
+    environment:
+      ZOOKEEPER_SERVER_ID: 2
+      ZOOKEEPER_CLIENT_PORT: 32181
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_INIT_LIMIT: 5
+      ZOOKEEPER_SYNC_LIMIT: 2
+      ZOOKEEPER_SERVERS: zookeeper1:22888:23888;zookeeper2:32888:33888;zookeeper3:42888:43888
+    volumes:
+      - ./dockerdata/1.0/zookeeper_2/zk-data:/var/lib/zookeeper/data
+      - ./dockerdata/1.0/zookeeper_2/zk-txn-logs:/var/lib/zookeeper/log
+    user: root
+
+  zookeeper3:
+    image: confluentinc/cp-zookeeper:7.4.0
+    hostname: zookeeper3
+    container_name: zookeeper3
+    #mem_limit: 500mb
+    #ports:
+    #  - '42181:42181'
+    environment:
+      ZOOKEEPER_SERVER_ID: 3
+      ZOOKEEPER_CLIENT_PORT: 42181
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_INIT_LIMIT: 5
+      ZOOKEEPER_SYNC_LIMIT: 2
+      ZOOKEEPER_SERVERS: zookeeper1:22888:23888;zookeeper2:32888:33888;zookeeper3:42888:43888
+    volumes:
+      - ./dockerdata/1.0/zookeeper_3/zk-data:/var/lib/zookeeper/data
+      - ./dockerdata/1.0/zookeeper_3/zk-txn-logs:/var/lib/zookeeper/log
+    user: root
+
+  kafka1:
+    image: confluentinc/cp-kafka:7.4.0
+    hostname: kafka1
+    container_name: kafka1
+    #mem_limit: 1gb
+    expose:
+      - "19092"
+      - "19093"
+    ports:
+      - '19093:19093'
+    links:
+     - "zookeeper1"
+     - "zookeeper2"
+     - "zookeeper3"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper1:22181,zookeeper2:32181,zookeeper3:42181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      #KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka1:19092,PLAINTEXT_HOST://kafka-external1:19093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka1:19092,PLAINTEXT_HOST://bigdatamaster.dataspartan.com:19093
+      KAFKA_DELETE_TOPIC_ENABLE: "true"
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+      KAFKA_CLEANUP_POLICY: "delete"
+      KAFKA_LOG_CLEANER_DELETE_RETENTION_MS: 900000
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    volumes:
+      - ./dockerdata/1.0/kafka_1/kakfa-data:/var/lib/kafka/data
+    user: root
+
+  kafka2:
+    image: confluentinc/cp-kafka:7.4.0
+    hostname: kafka2
+    container_name: kafka2
+    #mem_limit: 1gb
+    expose:
+      - "29092"
+      - "29093"
+    ports:
+      - '29093:29093'
+    links:
+     - "zookeeper1"
+     - "zookeeper2"
+     - "zookeeper3"
+    environment:
+      KAFKA_BROKER_ID: 2
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper1:22181,zookeeper2:32181,zookeeper3:42181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      #KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka2:29092,PLAINTEXT_HOST://kafka-external2:29093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka2:29092,PLAINTEXT_HOST://bigdatamaster.dataspartan.com:29093
+      KAFKA_DELETE_TOPIC_ENABLE: "true"
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+      KAFKA_CLEANUP_POLICY: "delete"
+      KAFKA_LOG_CLEANER_DELETE_RETENTION_MS: 900000
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    volumes:
+      - ./dockerdata/1.0/kafka_2/kakfa-data:/var/lib/kafka/data
+    user: root
+
+  kafka3:
+    image: confluentinc/cp-kafka:7.4.0
+    hostname: kafka3
+    container_name: kafka3
+    #  #mem_limit: 1gb
+    expose:
+      - "39092"
+      - "39093"
+    ports:
+      - '39093:39093'
+    links:
+     - "zookeeper1"
+     - "zookeeper2"
+     - "zookeeper3"
+    environment:
+      KAFKA_BROKER_ID: 3
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper1:22181,zookeeper2:32181,zookeeper3:42181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      #KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka3:39092,PLAINTEXT_HOST://kafka-external3:39093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka3:39092,PLAINTEXT_HOST://bigdatamaster.dataspartan.com:39093
+      KAFKA_DELETE_TOPIC_ENABLE: "true"
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+      KAFKA_CLEANUP_POLICY: "delete"
+      KAFKA_LOG_CLEANER_DELETE_RETENTION_MS: 900000
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    volumes:
+      - ./dockerdata/1.0/kafka_3/kakfa-data:/var/lib/kafka/data
+    user: root
+
+
+  # This "container" is a workaround to pre-create topics
+  kafka-create-topics:
+    image: confluentinc/cp-kafka:7.4.0
+    #mem_limit: 200mb
+    links:
+      - "kafka1"
+      - "kafka2"
+      - "kafka3"
+    hostname: kafka-create-topics
+      # We defined a dependency on "kafka", but `depends_on` will NOT wait for the
+      # dependencies to be "ready" before starting the "kafka-create-topics"
+      # container;  it waits only until the dependencies have started.  Hence we
+      # must control startup order more explicitly.
+      # See https://docs.docker.com/compose/startup-order/
+    command: "bash -c 'echo Waiting for Kafka to be ready... && \
+                            cub kafka-ready -b kafka1:19092 1 20 && \
+                            kafka-topics --create --topic topic_demographic --if-not-exists --bootstrap-server kafka2:29092 --partitions 1 --replication-factor 1 --config retention.ms=600000 && \
+                            kafka-topics --create --topic topic_historic --if-not-exists --bootstrap-server kafka2:29092 --partitions 1 --replication-factor 1 --config retention.ms=600000 && \
+                            kafka-topics --create --topic topic_buy --if-not-exists --bootstrap-server kafka2:29092 --partitions 1 --replication-factor 1 --config retention.ms=600000 && \
+                            kafka-topics --create --topic sales_in --if-not-exists --bootstrap-server kafka2:29092 --partitions 1 --replication-factor 1 --config retention.ms=600000 && \
+                            kafka-topics --create --topic topic_student_prediction --if-not-exists --bootstrap-server kafka2:29092 --partitions 1 --replication-factor 1  --config retention.ms=600000'"
+                            #&& \
+                            #sleep infinity'"
+
+    environment:
+        # The following settings are listed here only to satisfy the image's requirements.
+        # We override the image's `command` anyways, hence this container will not start a broker.
+      KAFKA_BROKER_ID: ignored
+      KAFKA_ZOOKEEPER_CONNECT: ignored
+
+##################################################################################################
+### Schema registry
+##################################################################################################
+  schemaregistry:
+    image: confluentinc/cp-schema-registry:7.4.0
+    hostname: schemaregistry
+    container_name: schemaregistry
+    restart: always
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schemaregistry
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: "PLAINTEXT://kafka1:19093,PLAINTEXT://kafka2:29093,PLAINTEXT://kafka3:39093"
+      SCHEMA_REGISTRY_LISTENERS: "http://schemaregistry:8081"
+      SCHEMA_REGISTRY_ACCESS_CONTROL_ALLOW_METHODS: "GET,POST,PUT,OPTIONS"
+      SCHEMA_REGISTRY_ACCESS_CONTROL_ALLOW_ORIGIN: "*"
+    ports:
+      - "8081:8081"
+    #volumes:
+    #  - ./schema-registry/schema-registry-properties.conf:/opt/confluent-7.4.0/etc/schema-registry/schema-registry.properties
+
+  schemaregistryui:
+    #image: landoop/schema-registry-ui:0.9.5
+    image: custom-schema-registry-ui
+    build:
+      dockerfile: docker/Dockerfile
+      context: ./schema-registry-ui/
+    hostname: schemaregistryui
+    container_name: schemaregistryui
+    restart: always
+    ports:
+      - "8002:8000"
+    environment:
+      SCHEMAREGISTRY_URL: 'http://localhost:8081'
+      ALLOW_GLOBAL: "true"
+      ALLOW_TRANSITIVE: "true"
+      ALLOW_DELETION: "true"
+      PROXY_SKIP_VERIFY: "true"
+      PROXY: "false"
+
+
+
+##################################################################################################
+### Kafka connect
+##################################################################################################
+  #kafkaconnect:
+  #  image: confluentinc/cp-kafka-connect:7.4.0
+  #  container_name: kafkaconnect
+  #  hostname: kafkaconnect
+  #  restart: always
+  #  ports:
+  #    - 8083:8083
+  #  volumes:
+  #    - ./jars:/etc/kafka-connect/jars
+  #    - ./connect-log4j.properties:/etc/confluent/docker/log4j.properties.template:ro
+  #    - ./kafka-connect/:/var/log/kafka/
+  #  environment:
+  #    #CONNECT_BOOTSTRAP_SERVERS: "kafka1:9092,kafka2:9092,kafka3:9092"
+  #    CONNECT_BOOTSTRAP_SERVERS: "kafka1:19093,kafka2:29093,kafka3:39093"
+  #    CONNECT_REST_ADVERTISED_PORT: 8083
+  #    CONNECT_GROUP_ID: connect
+  #    CONNECT_CONFIG_STORAGE_TOPIC: __db-connect-config
+  #    CONNECT_OFFSET_STORAGE_TOPIC: __db-connect-offset
+  #    CONNECT_STATUS_STORAGE_TOPIC: __db-connect-status
+  #    CONNECT_KEY_CONVERTER: "io.confluent.connect.avro.AvroConverter"
+  #    CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE: "false"
+  #    CONNECT_VALUE_CONVERTER: "io.confluent.connect.avro.AvroConverter"
+  #    CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE: "true"
+  #    CONNECT_VALUE_CONVERTER_SCHEMA_IGNORE: "false"
+  #    CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL: "http://schemaregistry:8081"
+  #    CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: "http://schemaregistry:8081"
+  #    CONNECT_REST_ADVERTISED_HOST_NAME: "kafkaconnect"
+  #    CONNECT_PLUGIN_PATH: "/usr/share/java,/usr/share/confluent-hub-components"
+      #,/etc/kafka-connect/jars"
+  #  links:
+  #    - "zookeeper1"
+  #    - "zookeeper2"
+  #    - "zookeeper3"
+  #    - "kafka1"
+  #    - "kafka2"
+  #    - "kafka3"
+  #  depends_on:
+  #    - "zookeeper1"
+  #    - "zookeeper2"
+  #    - "zookeeper3"
+  #    - "kafka1"
+  #    - "kafka2"
+  #    - "kafka3"
+  #  user: root
+
+  mongoconnect:
+    build:
+      context: ./connect-mongo
+      dockerfile: Dockerfile
+    ports:
+      - "8083:8083"
+    hostname: mongoconnect
+    container_name: mongoconnect
+    depends_on:
+      - zookeeper1
+      - zookeeper2
+      - zookeeper3
+      - kafka1
+      - kafka2
+      - kafka3
+    environment:
+      KAFKA_JMX_PORT: 35000
+      KAFKA_JMX_HOSTNAME: localhost
+      CONNECT_BOOTSTRAP_SERVERS: "kafka1:19093,kafka2:29093,kafka3:39093"
+      CONNECT_REST_ADVERTISED_HOST_NAME: connect
+      CONNECT_REST_PORT: 8083
+      CONNECT_GROUP_ID: connect-cluster-group
+      CONNECT_CONFIG_STORAGE_TOPIC: docker-connect-configs
+      CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_OFFSET_FLUSH_INTERVAL_MS: 10000
+      CONNECT_OFFSET_STORAGE_TOPIC: docker-connect-offsets
+      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_STATUS_STORAGE_TOPIC: docker-connect-status
+      CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_ZOOKEEPER_CONNECT: zookeeper1:22181,zookeeper2:32181,zookeeper3:42181
+      CONNECT_PLUGIN_PATH: "/usr/share/java,/usr/share/confluent-hub-components"
+      CONNECT_CONNECTIONS_MAX_IDLE_MS: 180000
+      CONNECT_METADATA_MAX_AGE_MS: 180000
+      CONNECT_AUTO_CREATE_TOPICS_ENABLE: "true"
+      CONNECT_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+
+  mongodb:
+    image: mongo:6.0.5
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./database-volume:/data/db
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongo mongo:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    restart: always
