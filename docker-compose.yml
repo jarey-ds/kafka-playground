@@ -83,6 +83,7 @@ services:
       KAFKA_CLEANUP_POLICY: "delete"
       KAFKA_LOG_CLEANER_DELETE_RETENTION_MS: 900000
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_JMX_PORT: 7071
     volumes:
       - ./dockerdata/1.0/kafka_1/kakfa-data:/var/lib/kafka/data
     user: root
@@ -112,6 +113,7 @@ services:
       KAFKA_CLEANUP_POLICY: "delete"
       KAFKA_LOG_CLEANER_DELETE_RETENTION_MS: 900000
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_JMX_PORT: 7071
     volumes:
       - ./dockerdata/1.0/kafka_2/kakfa-data:/var/lib/kafka/data
     user: root
@@ -141,6 +143,7 @@ services:
       KAFKA_CLEANUP_POLICY: "delete"
       KAFKA_LOG_CLEANER_DELETE_RETENTION_MS: 900000
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_JMX_PORT: 7071
     volumes:
       - ./dockerdata/1.0/kafka_3/kakfa-data:/var/lib/kafka/data
     user: root
@@ -315,3 +318,22 @@ services:
       retries: 5
       start_period: 20s
     restart: always
+
+
+###########################################
+####### KAFKA CMAK
+###########################################
+  zk-cmak:
+    container_name: zk-cmak
+    hostname: zk-cmak
+    image: zookeeper:latest
+    restart: always
+    environment:
+      ZOO_SERVERS: server.1=0.0.0.0:2888:3888;2181
+  cmak:
+    image: ghcr.io/eshepelyuk/dckr/cmak-3.0.0.6:latest
+    restart: always
+    ports:
+      - "9000:9000"
+    environment:
+      ZK_HOSTS: "zk-cmak:2181"
