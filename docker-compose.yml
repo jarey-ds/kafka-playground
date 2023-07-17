@@ -6,8 +6,8 @@ services:
     hostname: zookeeper1
     container_name: zookeeper1
     #mem_limit: 500mb
-    #ports:
-    #  - '22181:22181'
+    ports:
+      - '22181:22181'
     environment:
       ZOOKEEPER_SERVER_ID: 1
       ZOOKEEPER_CLIENT_PORT: 22181
@@ -25,8 +25,8 @@ services:
     hostname: zookeeper2
     container_name: zookeeper2
     #mem_limit: 500mb
-    #ports:
-    #  - '32181:32181'
+    ports:
+      - '32181:32181'
     environment:
       ZOOKEEPER_SERVER_ID: 2
       ZOOKEEPER_CLIENT_PORT: 32181
@@ -44,8 +44,8 @@ services:
     hostname: zookeeper3
     container_name: zookeeper3
     #mem_limit: 500mb
-    #ports:
-    #  - '42181:42181'
+    ports:
+      - '42181:42181'
     environment:
       ZOOKEEPER_SERVER_ID: 3
       ZOOKEEPER_CLIENT_PORT: 42181
@@ -66,8 +66,12 @@ services:
     expose:
       - "19092"
       - "19093"
+      - "22181"
+      - "7071"
     ports:
       - '19093:19093'
+      - '7071:7071'
+      - '19092:19092'
     links:
      - "zookeeper1"
      - "zookeeper2"
@@ -96,8 +100,11 @@ services:
     expose:
       - "29092"
       - "29093"
+      - "7072"
     ports:
       - '29093:29093'
+      - '7072:7072'
+      - '29092:29092'
     links:
      - "zookeeper1"
      - "zookeeper2"
@@ -113,7 +120,7 @@ services:
       KAFKA_CLEANUP_POLICY: "delete"
       KAFKA_LOG_CLEANER_DELETE_RETENTION_MS: 900000
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_JMX_PORT: 7071
+      KAFKA_JMX_PORT: 7072
     volumes:
       - ./dockerdata/1.0/kafka_2/kakfa-data:/var/lib/kafka/data
     user: root
@@ -126,8 +133,11 @@ services:
     expose:
       - "39092"
       - "39093"
+      - "7073"
     ports:
       - '39093:39093'
+      - "7073:7073"
+      - '39092:39092'
     links:
      - "zookeeper1"
      - "zookeeper2"
@@ -143,7 +153,7 @@ services:
       KAFKA_CLEANUP_POLICY: "delete"
       KAFKA_LOG_CLEANER_DELETE_RETENTION_MS: 900000
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_JMX_PORT: 7071
+      KAFKA_JMX_PORT: 7073
     volumes:
       - ./dockerdata/1.0/kafka_3/kakfa-data:/var/lib/kafka/data
     user: root
@@ -323,17 +333,17 @@ services:
 ###########################################
 ####### KAFKA CMAK
 ###########################################
-  zk-cmak:
-    container_name: zk-cmak
-    hostname: zk-cmak
-    image: zookeeper:latest
-    restart: always
-    environment:
-      ZOO_SERVERS: server.1=0.0.0.0:2888:3888;2181
-  cmak:
-    image: ghcr.io/eshepelyuk/dckr/cmak-3.0.0.6:latest
-    restart: always
-    ports:
-      - "9000:9000"
-    environment:
-      ZK_HOSTS: "zk-cmak:2181"
+#  zk-cmak:
+#    container_name: zk-cmak
+#    hostname: zk-cmak
+#    image: zookeeper:latest
+#    restart: always
+#    environment:
+#      ZOO_SERVERS: server.1=0.0.0.0:2888:3888;2181
+#  cmak:
+#    image: ghcr.io/eshepelyuk/dckr/cmak-3.0.0.6:latest
+#    restart: always
+#    ports:
+#      - "9000:9000"
+#    environment:
+#      ZK_HOSTS: "zk-cmak:2181"

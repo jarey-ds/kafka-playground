@@ -1,0 +1,22 @@
+---
+version: '3.9'
+services:
+  zk-cmak:
+    network_mode: "host"
+    container_name: zk-cmak
+    hostname: zk-cmak
+    image: zookeeper:latest
+    restart: always
+    environment:
+      ZOO_SERVERS: server.1=0.0.0.0:2888:3888;2181
+  cmak:
+    network_mode: "host"
+    image: ghcr.io/eshepelyuk/dckr/cmak-3.0.0.6:latest
+    restart: always
+    volumes:
+      - ./logger.xml:/cmak/logger.xml
+      - ./hosts:/etc/hosts
+    #ports:
+    #  - "9000:9000"
+    environment:
+      ZK_HOSTS: "localhost:2181"
